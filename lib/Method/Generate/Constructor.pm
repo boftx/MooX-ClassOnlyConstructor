@@ -84,15 +84,21 @@ sub install_delayed {
 
 sub generate_method {
   my ($self, $into, $name, $spec, $quote_opts) = @_;
+  local $self->{captures} = {};
+  my $body = $self->_generate_constructor($into, $name, $spec);
+  quote_sub
+    "${into}::${name}" => $body,
+    $self->{captures}, $quote_opts||{}
+  ;
+}
+
+sub _generate_constructor {
+  my ($self, $into, $name, $spec) = @_;
   foreach my $no_init (grep !exists($spec->{$_}{init_arg}), keys %$spec) {
     $spec->{$no_init}{init_arg} = $no_init;
   }
-  local $self->{captures} = {};
-  my $body = '    my $class = shift;'."\n";
-#            .'    $class = ref($class) if ref($class);'."\n";
-# make it accessable by 'around'
-  $body .= $self->_generate_prolog($into,$name);
-
+  my $body = '    my $class = shift;'."\n"
+            .'    $class = ref($class) if ref($class);'."\n";
   $body .= $self->_handle_subconstructor($into, $name);
   my $into_buildargs = $into->can('BUILDARGS');
   if ( $into_buildargs && $into_buildargs != \&Moo::Object::BUILDARGS ) {
@@ -113,20 +119,7 @@ sub generate_method {
     require Method::Generate::DemolishAll;
     Method::Generate::DemolishAll->new->generate_method($into);
   }
-  quote_sub
-    "${into}::${name}" => $body,
-    $self->{captures}, $quote_opts||{}
-  ;
-}
-
-# This is broken out to allow access by Roles before the constuctor is
-# installed into the target package. See MooX::ClassOnlyConstructor for example.
-# $into and $name are brought in for convienence in extension code.
-sub _generate_prolog {
-  my $self = shift;
-  my ($into,$name) = @_;
-
-  return '    $class = ref($class) if ref($class);'."\n";
+  return $body;
 }
 
 sub _handle_subconstructor {
