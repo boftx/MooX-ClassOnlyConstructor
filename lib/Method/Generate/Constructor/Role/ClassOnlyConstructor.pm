@@ -20,41 +20,19 @@ around _generate_constructor => sub {
     my $self = shift;
 
     my ( $into, $name, $spec ) = @_;
-    foreach my $no_init ( grep !exists( $spec->{$_}{init_arg} ), keys %$spec ) {
-        $spec->{$no_init}{init_arg} = $no_init;
-    }
 
-    my $body = '    my $class = shift;' . "\n";
+    my $body = $self->$orig(@_);
 
-    $body .= qq{
+    my $die_code = qq{
     # Method::Generate::Constructor::Role::ClassOnlyConstructor
     require Carp;
     Carp::croak "'$into->$name' must be called as a class method only"
-      if ref(\$class);
+      if ref(\$_[0]);
 
+    $body
     };
 
-    $body .= $self->_handle_subconstructor( $into, $name );
-    my $into_buildargs = $into->can('BUILDARGS');
-    if ( $into_buildargs && $into_buildargs != \&Moo::Object::BUILDARGS ) {
-        $body .= $self->_generate_args_via_buildargs;
-    }
-    else {
-        $body .= $self->_generate_args;
-    }
-    $body .= $self->_check_required($spec);
-    $body .= '    my $new = ' . $self->construction_string . ";\n";
-    $body .= $self->_assign_new($spec);
-    if ( $into->can('BUILD') ) {
-        $body .= $self->buildall_generator->buildall_body_for( $into, '$new',
-            '$args' );
-    }
-    $body .= '    return $new;' . "\n";
-    if ( $into->can('DEMOLISH') ) {
-        require Method::Generate::DemolishAll;
-        Method::Generate::DemolishAll->new->generate_method($into);
-    }
-    return $body;
+    return $die_code;
 };
 
 1;
@@ -80,7 +58,7 @@ if C<$class> is a reference.
 =head2 STANDING ON THE SHOULDERS OF ...
 
 This code would not exist without the examples in L<MooseX::StrictConstructor>
-and the expert guidance of C<mst>.
+and the expert guidance of C<mst> and C<haarg>.
 
 =head1 AUTHOR
 
