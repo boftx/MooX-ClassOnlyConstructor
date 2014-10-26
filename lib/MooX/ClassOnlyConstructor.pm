@@ -4,8 +4,7 @@ package MooX::ClassOnlyConstructor;
 
 use Moo::Role ();
  
-use constant
-    CON_ROLE => 'Method::Generate::Constructor::Role::ClassOnlyConstructor';
+use constant ROLE_BASE => 'Method::Generate::Constructor::Role::';
 {
   $MooX::ClassOnlyContructor::VERSION = 'v0.1_1';
 }
@@ -19,7 +18,16 @@ sub import {
       unless $Moo::MAKERS{$target} && $Moo::MAKERS{$target}{is_class};
  
     my $con = Moo->_constructor_maker_for($target);
-    Moo::Role->apply_roles_to_object($con, CON_ROLE);
+
+    my $con_role = ROLE_BASE;
+    if ( $con->can('_generate_constructor') ) {
+warn "in proposed\n";
+        $con_role .= 'ClassOnlyConstructor';
+    } else {
+warn "in RETRO\n";
+        $con_role .= 'RetroClassOnlyConstructor';
+    }
+    Moo::Role->apply_roles_to_object($con, $con_role);
  
     return;
 }
