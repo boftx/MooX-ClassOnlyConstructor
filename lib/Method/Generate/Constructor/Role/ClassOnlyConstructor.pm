@@ -26,7 +26,7 @@ around _generate_constructor => sub {
     my $die_code = qq{
     # Method::Generate::Constructor::Role::ClassOnlyConstructor
     require Carp;
-    Carp::croak "'$into->$name' must be called as a class method only"
+    Carp::croak "'$into->$name' must be called as a class method"
       if ref(\$_[0]);
 
     $body
