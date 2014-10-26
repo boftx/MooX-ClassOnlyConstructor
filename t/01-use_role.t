@@ -17,7 +17,7 @@ use_ok('MyTest');
 
 my $test_obj = new_ok( MyTest => [], '$test_obj');
 
-throws_ok( sub { $test_obj->new() }, qr/class method only/,
+throws_ok( sub { $test_obj->new() }, qr/must be called as a class method/,
     '$test_obj can not call new' );
 
 done_testing();
