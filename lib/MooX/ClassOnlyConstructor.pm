@@ -2,8 +2,6 @@ package MooX::ClassOnlyConstructor;
 
 # ABSTRACT: Make Moo-based object constructors class-only methods
 
-use strictures 1;
-
 use Moo::Role ();
  
 use constant
