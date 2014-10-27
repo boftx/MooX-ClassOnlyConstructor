@@ -21,18 +21,15 @@ around _generate_constructor => sub {
 
     my ( $into, $name, $spec ) = @_;
 
-    my $body = $self->$orig(@_);
-
-    my $die_code = qq{
+    my $body = qq{
     # Method::Generate::Constructor::Role::ClassOnlyConstructor
     require Carp;
     Carp::croak "'$into->$name' must be called as a class method"
       if ref(\$_[0]);
 
-    $body
     };
 
-    return $die_code;
+    return $body .= $self->$orig(@_);
 };
 
 1;
