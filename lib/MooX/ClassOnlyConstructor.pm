@@ -21,10 +21,8 @@ sub import {
 
     my $con_role = ROLE_BASE;
     if ( $con->can('_generate_constructor') ) {
-warn "in proposed\n";
         $con_role .= 'ClassOnlyConstructor';
     } else {
-warn "in RETRO\n";
         $con_role .= 'RetroClassOnlyConstructor';
     }
     Moo::Role->apply_roles_to_object($con, $con_role);
