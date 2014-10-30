@@ -61,7 +61,7 @@ Then in a script:
   
  # and this will throw an exception via croak
  eval { my $ma2 = $ma->new(); };
- print "$#\n";
+ print "$@\n";
   
  # prints "'MyApp->new' must be called as a class method ..."
   
